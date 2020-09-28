@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>DS Page Template</title>
+		<script 
+			type="text/javascript" src="https://d3js.org/d3.v6.min.js">
+		</script>
+	</head>
+	<body>
+		<div><h1>Food</h1></div>
+		<div><h1>Numbers</h1></div>
+		<div><h1>Bar chart!</h1></div>
+
+		<script type="text/javascript">
+			var myData;
+
+			var displayData = function(){
+				d3.select("body div:nth-of-type(1)")
+					.selectAll("p")
+					.data(myData)
+					.enter()
+					.append("p")
+					.text(function(d){return d.Food;});
+				return null;
+			}
+
+			d3.csv("mydata.csv",function(rowdata){
+				console.log("row");
+				console.log(rowdata);
+				return {
+					Food: rowdata.Food, 
+					Deliciousness: parseFloat(rowdata.deliciousness)
+				};
+				}).then(function(finaldata){
+					console.log("final");
+					console.log(finaldata);
+					myData=finaldata;
+					displayData();
+				});
+
+			//var dataset=[12, 1, 9, 7, 16, 8, 3, 18];
+			var dataset=[]
+			for(var i=0;i<50;i++){
+				var newNumber = Math.random()*30;
+				dataset.push(newNumber);
+			}
+
+			// d3.select("body div:nth-of-type(2)")
+			// 	.selectAll("p")
+			// 	.data(dataset)
+			// 	.enter()
+			// 	.append("p")
+			// 	.text(function(d,i){return "My favorite number is " + d + " which is the " + i + "th number"})
+			// 	.style("color",function(d){if(d>15){return "red";}else{return "blue";}});
+			
+			d3.select("body div:nth-of-type(3)")
+				.selectAll("div")
+				.data(dataset)
+				.enter()
+				.append("div")
+				.attr("class","bar")
+				.style("height",function(d){return d*5+"px";})
+		</script>
+
+		<style type="text/css">
+			div.bar {
+				display:inline-block;
+				width:20px;
+				height:75px;
+				background-color: teal;
+				margin-right:2px;
+			}
+		</style>
+	</body>
+</html>

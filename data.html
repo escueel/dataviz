@@ -11,9 +11,12 @@
 		<div><h1>Food</h1></div>
 		<div><h1>Numbers</h1></div>
 		<div><h1>Bar chart!</h1></div>
-
+	
 		<script type="text/javascript">
 			var myData;
+			var w=1000;
+			var h=100;
+			var barPadding=1;
 
 			var displayData = function(){
 				d3.select("body div:nth-of-type(1)")
@@ -39,12 +42,12 @@
 					displayData();
 				});
 
-			//var dataset=[12, 1, 9, 7, 16, 8, 3, 18];
-			var dataset=[]
-			for(var i=0;i<50;i++){
-				var newNumber = Math.random()*30;
-				dataset.push(newNumber);
-			}
+			var dataset=[5,10,13,19,21,25,22,18,15,13,11,12,15,20,18,17,16,18,23,25];
+			// var dataset=[]
+			// for(var i=0;i<15;i++){
+			// 	var newNumber = Math.floor(Math.random()*30);
+			// 	dataset.push(newNumber);
+			// }
 
 			// d3.select("body div:nth-of-type(2)")
 			// 	.selectAll("p")
@@ -55,12 +58,94 @@
 			// 	.style("color",function(d){if(d>15){return "red";}else{return "blue";}});
 			
 			d3.select("body div:nth-of-type(3)")
-				.selectAll("div")
+			  .selectAll("div")
+			  .data(dataset)
+			  .enter()
+			  .append("div")
+			  .attr("class","bar")
+			  .style("height",d=>d*5+"px");
+
+			var svg = d3.select("body")
+						.append("svg")
+						.attr("width",w)
+						.attr("height",h);
+
+			var circles = svg.selectAll("circle")
 				.data(dataset)
 				.enter()
-				.append("div")
-				.attr("class","bar")
-				.style("height",function(d){return d*5+"px";})
+				.append("circle");
+
+			circles
+				.attr("cx",function(d,i){return i*50+25;})
+				.attr("cy",h/2)
+				.attr("r",d=>d)
+				.attr("fill","yellow")
+				.attr("stroke","orange")
+				.attr("stroke-width", function(d){return d/2;})
+
+			var svg2 = d3.select("body")
+						 .append("svg")
+						 .attr("width",w)
+						 .attr("height",h);
+			
+			svg2.selectAll("rect")
+			   .data(dataset)
+			   .enter()
+			   .append("rect")
+			   .attr("x",function(d,i){return i*(w/dataset.length);})
+			   .attr("y",function(d){return h-d*4})
+			   .attr("width",w/dataset.length-barPadding)
+			   .attr("height",function(d){return d*4;})
+			   .attr("fill",function(d){return "rgb(0,0,"+Math.round(d*10)+")";});
+
+			svg2.selectAll("text")
+				.data(dataset)
+				.enter()
+				.append("text")
+				.text(function(d){return d;})
+				.attr("x",function(d,i){return i*(w/dataset.length)+(w/dataset.length - barPadding)/2;})
+			    .attr("y",function(d){if (d>5) {return h-(d*4)+15;} else {return h-(d*4)-5;} })
+				.attr("font-family","sans-serif")
+				.attr("font-size","11px")
+				.attr("fill",function(d){if (d>5) {return "white";} else {return "whiblackte";} })
+				.attr("text-anchor","middle");
+
+			var scatterdata =[
+				[5,20],
+				[480,90],
+				[250,50],
+				[100,33],
+				[330,95],
+				[410,12],
+				[475,44],
+				[25,67],
+				[85,21],
+				[220,88]
+							];
+
+			svg3=d3.select("body")
+				   .append("svg")
+				   .attr("width",w)
+				   .attr("height",h);
+			
+			svg3.selectAll("circle")
+				.data(scatterdata)
+				.enter()
+				.append("circle")
+				.attr("cx",function(d){return d[0];})
+				.attr("cy",function(d){return d[1];})
+				.attr("r",d => Math.sqrt(h-d[1]));	
+
+			svg3.selectAll("text")
+				.data(scatterdata)
+				.enter()
+				.append("text")
+				.text(d=>d[0]+','+d[1])
+				.attr("x",d=>d[0])
+				.attr("y",d=>d[1])
+				.attr("fond-family","sans-serif")
+				.attr("font-size","11px")
+				.attr("fill","red");
 		</script>
 
 		<style type="text/css">
@@ -69,8 +154,10 @@
 				width:20px;
 				height:75px;
 				background-color: teal;
-				margin-right:2px;
+				margin-right:15px;
+				margin-left:15px;
 			}
 		</style>
 	</body>
+
 </html>

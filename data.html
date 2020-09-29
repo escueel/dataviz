@@ -8,19 +8,38 @@
 		</script>
 	</head>
 	<body>
-		<div><h1>Food</h1></div>
-		<div><h1>Numbers</h1></div>
-		<div><h1>Bar chart!</h1></div>
-	
+		<div id="food"><h1>Food</h1></div>
+		<div id="numbers"><h1>Numbers</h1></div>
+		<div>
+			<h1>Bar chart!</h1>
+			<div id="barchart"></div>
+			<div>
+				<svg id="circles"></svg>
+			</div>
+		</div>
+		<div>
+			<h1>SVG bar chart!</h1>
+			<svg id="svgbar"></svg>
+		</div>
+		<div>
+			<h1>2d scatter chart!</h1>
+			<svg id="twoDscatter"></svg>
+		</div>
+		<div>
+			<h1>Date scatter chart!</h1>
+			<svg id="datescatter"></svg>
+		</div>
+		
 		<script type="text/javascript">
 			var myData;
 			var w=500;
 			var h=100;
 			var barPadding=1;
 			var margin={left:20,right:40,bottom:20,top:20};
-			/*
+
+			///////////////////////////////////////////////////////////////// FOOD!!!! 
 			var displayData = function(){
-				d3.select("body div:nth-of-type(1)")
+				d3.select("body div#food")
 					.selectAll("p")
 					.data(myData)
 					.enter()
@@ -43,6 +62,8 @@
 					displayData();
 				});
 
+			///////////////////////////////////////////////////////////////// FOOD!!!! 
+
 			var dataset=[5,10,13,19,21,25,22,18,15,13,11,12,15,20,18,17,16,18,23,25];
 			// var dataset=[]
 			// for(var i=0;i<15;i++){
@@ -50,15 +71,15 @@
 			// 	dataset.push(newNumber);
 			// }
 
-			// d3.select("body div:nth-of-type(2)")
-			// 	.selectAll("p")
-			// 	.data(dataset)
-			// 	.enter()
-			// 	.append("p")
-			// 	.text(function(d,i){return "My favorite number is " + d + " which is the " + i + "th number"})
-			// 	.style("color",function(d){if(d>15){return "red";}else{return "blue";}});
+			d3.select("body div#numbers")
+				.selectAll("p")
+				.data(dataset)
+				.enter()
+				.append("p")
+				.text(function(d,i){return "My favorite number is " + d + " which is the " + i + "th number"})
+				.style("color",function(d){if(d>15){return "red";}else{return "blue";}});
 			
-			d3.select("body div:nth-of-type(3)")
+			d3.select("body div#barchart")
 			  .selectAll("div")
 			  .data(dataset)
 			  .enter()
@@ -66,11 +87,10 @@
 			  .attr("class","bar")
 			  .style("height",d=>d*5+"px");
 
-			var svg = d3.select("body")
-						.append("svg")
-						.attr("width",w)
-						.attr("height",h);
-
+			var svg = d3.select("body svg#circles")
+			document.getElementById("circles").setAttribute("width",w*2)
+			document.getElementById("circles").setAttribute("height",h)
+			
 			var circles = svg.selectAll("circle")
 				.data(dataset)
 				.enter()
@@ -84,10 +104,9 @@
 				.attr("stroke","orange")
 				.attr("stroke-width", function(d){return d/2;})
 
-			var svg2 = d3.select("body")
-						 .append("svg")
-						 .attr("width",w)
-						 .attr("height",h);
+			var svg2 = d3.select("#svgbar");
+			document.getElementById("svgbar").setAttribute("width",w*2);
+			document.getElementById("svgbar").setAttribute("height",h);
 			
 			svg2.selectAll("rect")
 			   .data(dataset)
@@ -108,9 +127,9 @@
 			    .attr("y",function(d){if (d>5) {return h-(d*4)+15;} else {return h-(d*4)-5;} })
 				.attr("font-family","sans-serif")
 				.attr("font-size","11px")
-				.attr("fill",function(d){if (d>5) {return "white";} else {return "whiblackte";} })
+				.attr("fill",function(d){if (d>5) {return "white";} else {return "black";} })
 				.attr("text-anchor","middle");
-			*/
+		
 			var scatterdata =[
 				[5,20],
 				[480,90],
@@ -137,11 +156,10 @@
 			var aScale = d3.scaleSqrt()
 				.domain([0,d3.max(scatterdata, d=>d[1])])
 				.range([0,10]);
-
-			svg3=d3.select("body")
-				   .append("svg")
-				   .attr("width",w)
-				   .attr("height",h);
+			
+			svg3 = d3.select("#twoDscatter");
+			document.getElementById("twoDscatter").setAttribute("width",w*2);
+			document.getElementById("twoDscatter").setAttribute("height",h);
 			
 			svg3.selectAll("circle")
 				.data(scatterdata)
@@ -166,18 +184,41 @@
 			var parseTime = d3.timeParse("%m/%d/%y");
 
 			var displayDates=function(){
-				d3.select("body")
-					.append("div")
-					.attr("id","dates")
-					.attr("width",w)
-					.attr("height",h);
+
+				var xDateScale=d3.scaleTime()
+					.domain( [d3.min(datedataset,d=>d.Date),d3.max(datedataset,d=>d.Date)])
+					.range([margin.left,w*2-margin.right]);
+
+				var yDateScale=d3.scaleLinear()
+					.domain([0,d3.max(datedataset,d=>d.Amount)])
+					.range([h*5-margin.bottom,margin.top]);
+
 				
-				d3.select("body div#dates")
-					.selectAll("p")
+				svg4= d3.select("#datescatter")
+				document.getElementById("datescatter").setAttribute("height",h*5);
+				document.getElementById("datescatter").setAttribute("width",w*2);
+
+				svg4.selectAll("circle")
 					.data(datedataset)
 					.enter()
-					.append("p")
-					.text("test")
+					.append("circle")
+					.text(d=>d3.timeFormat("%b %e")(d.Date))
+					.attr("fill","black")
+					.attr("cx",d=>xDateScale(d.Date))
+					.attr("cy",d=>yDateScale(d.Amount))
+					.attr("r",3);
+					
+				svg4.selectAll("text")
+					.data(datedataset)
+					.enter()
+					.append("text")
+					.text(d=>d3.timeFormat("%b %e")(d.Date))
+					.attr("fill","red")
+					.attr("x",d=>xDateScale(d.Date)+4)
+					.attr("y",d=>yDateScale(d.Amount)+4)
+					.attr("font-family","sans-serif")
+					.attr("font-size",8);
+
 				return null;
 			}
 
@@ -187,11 +228,9 @@
 						Amount: parseInt(row.Amount)
 				};
 			}).then(function(data){
-				console.log(datedataset);
 				datedataset=data;
-				console.log(datedataset);
+				displayDates();
 			})
-			  .then(displayDates());
 
 		</script>
 

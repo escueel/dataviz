@@ -6,6 +6,23 @@
 		<script 
 			type="text/javascript" src="https://d3js.org/d3.v6.js">
 		</script>
+
+		<style type="text/css">
+			div.bar {
+				display:inline-block;
+				width:20px;
+				height:75px;
+				background-color: teal;
+				margin-right:15px;
+				margin-left:15px;
+			}
+
+			axis path,
+			axis line {
+				stroke: red;
+				shape-rendering: crispEdges;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="food"><h1>Food</h1></div>
@@ -37,7 +54,8 @@
 			var barPadding=1;
 			var margin={left:20,right:40,bottom:20,top:20};
 
-			///////////////////////////////////////////////////////////////// FOOD!!!! 
+			/////////  FOOD!!!!   ////////////////////////////////////////////////////////  
+
 			var displayData = function(){
 				d3.select("body div#food")
 					.selectAll("p")
@@ -62,7 +80,7 @@
 					displayData();
 				});
 
-			///////////////////////////////////////////////////////////////// FOOD!!!! 
+			/////////  NUMBERS!!!!   ////////////////////////////////////////////////////////  
 
 			var dataset=[5,10,13,19,21,25,22,18,15,13,11,12,15,20,18,17,16,18,23,25];
 			// var dataset=[]
@@ -79,6 +97,8 @@
 				.text(function(d,i){return "My favorite number is " + d + " which is the " + i + "th number"})
 				.style("color",function(d){if(d>15){return "red";}else{return "blue";}});
 			
+			/////////  BARCHART!!!!   ////////////////////////////////////////////////////////  
+
 			d3.select("body div#barchart")
 			  .selectAll("div")
 			  .data(dataset)
@@ -86,6 +106,8 @@
 			  .append("div")
 			  .attr("class","bar")
 			  .style("height",d=>d*5+"px");
+
+  			/////////  SVGCHART!!!!   ////////////////////////////////////////////////////////  
 
 			var svg = d3.select("body svg#circles")
 			document.getElementById("circles").setAttribute("width",w*2)
@@ -103,6 +125,8 @@
 				.attr("fill","yellow")
 				.attr("stroke","orange")
 				.attr("stroke-width", function(d){return d/2;})
+
+			/////////  SVG BARCHART!!!!   ////////////////////////////////////////////////////////  
 
 			var svg2 = d3.select("#svgbar");
 			document.getElementById("svgbar").setAttribute("width",w*2);
@@ -129,7 +153,9 @@
 				.attr("font-size","11px")
 				.attr("fill",function(d){if (d>5) {return "white";} else {return "black";} })
 				.attr("text-anchor","middle");
-		
+
+			/////////  SCATTER!!!!   ////////////////////////////////////////////////////////  
+
 			var scatterdata =[
 				[5,20],
 				[480,90],
@@ -145,21 +171,24 @@
 				//,[6300,250]
 							];
 			
+			var hScatter = h*3;
+			var wScatter = w*3;
+
 			var xScale = d3.scaleLinear()
 				.domain([0,d3.max(scatterdata,d=>d[0])])
 				.range([margin.left,w-margin.right]);
 			
 			var yScale = d3.scaleLinear()
 				.domain([0,d3.max(scatterdata,d=>d[1])])
-				.range([h-margin.top,margin.bottom]);
+				.range([hScatter-margin.top,margin.bottom]);
 			
 			var aScale = d3.scaleSqrt()
 				.domain([0,d3.max(scatterdata, d=>d[1])])
 				.range([0,10]);
-			
+
 			svg3 = d3.select("#twoDscatter");
-			document.getElementById("twoDscatter").setAttribute("width",w*2);
-			document.getElementById("twoDscatter").setAttribute("height",h);
+			document.getElementById("twoDscatter").setAttribute("width",wScatter);
+			document.getElementById("twoDscatter").setAttribute("height",hScatter);
 			
 			svg3.selectAll("circle")
 				.data(scatterdata)
@@ -180,6 +209,15 @@
 				.attr("font-size","11px")
 				.attr("fill","red");
 			
+			var xAxis=d3.axisBottom(xScale);
+			svg3.append("g")
+				.attr("class","axis")
+				.attr("transform","translate(0," + (hScatter - margin.bottom) + ")")
+				.call(xAxis);
+
+			
+			/////////  DATES!!!!   ////////////////////////////////////////////////////////  
+
 			var datedataset=[];
 			var parseTime = d3.timeParse("%m/%d/%y");
 
@@ -234,16 +272,6 @@
 
 		</script>
 
-		<style type="text/css">
-			div.bar {
-				display:inline-block;
-				width:20px;
-				height:75px;
-				background-color: teal;
-				margin-right:15px;
-				margin-left:15px;
-			}
-		</style>
 	</body>
 
 </html>

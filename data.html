@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title>DS Page Template</title>
+		<!--https://github.com/scotthmurray/d3-book-->
 		<script 
 			type="text/javascript" src="https://d3js.org/d3.v6.js">
 		</script>
@@ -257,17 +258,31 @@
 
 			var displayDates=function(){
 
+				var hDate = h*5;
+				var wDate = w*2;
+
 				var xDateScale=d3.scaleTime()
-					.domain( [d3.min(datedataset,d=>d.Date),d3.max(datedataset,d=>d.Date)])
-					.range([margin.left,w*2-margin.right]);
+					.domain([new Date(d3.min(datedataset,d=>d.Date).getTime()-(24*60*60*1000)),new Date(d3.max(datedataset,d=>d.Date).getTime()+(24*60*60*1000))])
+					.range([margin.left,wDate-margin.right]);
 
 				var yDateScale=d3.scaleLinear()
 					.domain([0,d3.max(datedataset,d=>d.Amount)])
-					.range([h*5-margin.bottom,margin.top]);
+					.range([hDate-margin.bottom,margin.top]);
+
+				var xAxisFormat = d3.timeFormat("%e")
+				var xDateAxis=d3.axisBottom()
+					.scale(xDateScale)
+					.tickFormat(xAxisFormat);
+					//.ticks(5);
+					//.tickValues([75,150,200,225,250,275,300,375,450,550]);
+
+				var yDateAxis=d3.axisLeft()
+					.scale(yDateScale);
+					//.tickFormat(percentFormat);
 
 				svg4= d3.select("#datescatter")
-				document.getElementById("datescatter").setAttribute("height",h*5);
-				document.getElementById("datescatter").setAttribute("width",w*2);
+				document.getElementById("datescatter").setAttribute("height",hDate);
+				document.getElementById("datescatter").setAttribute("width",wDate);
 
 				svg4.selectAll("circle")
 					.data(datedataset)
@@ -277,18 +292,37 @@
 					.attr("fill","black")
 					.attr("cx",d=>xDateScale(d.Date))
 					.attr("cy",d=>yDateScale(d.Amount))
-					.attr("r",3);
-					
-				svg4.selectAll("text")
+					.attr("r",6);
+
+				svg4.selectAll("line")
 					.data(datedataset)
 					.enter()
-					.append("text")
-					.text(d=>d3.timeFormat("%b %e")(d.Date))
-					.attr("fill","red")
-					.attr("x",d=>xDateScale(d.Date)+4)
-					.attr("y",d=>yDateScale(d.Amount)+4)
-					.attr("font-family","sans-serif")
-					.attr("font-size",8);
+					.append("line")
+					.attr("x1",d=>xDateScale(d.Date))
+					.attr("x2",d=>xDateScale(d.Date))
+					.attr("y1",d=>hDate-margin.bottom)
+					.attr("y2",d=>yDateScale(d.Amount)+6)
+					.attr("stroke","lightgray")
+					.attr("stroke-width","2");
+
+				// svg4.selectAll("text")
+				// 	.data(datedataset)
+				// 	.enter()
+				// 	.append("text")
+				// 	.text(d=>d3.timeFormat("%b %e")(d.Date))
+				// 	.attr("fill","red")
+				// 	.attr("x",d=>xDateScale(d.Date)+4)
+				// 	.attr("y",d=>yDateScale(d.Amount)+4)
+				// 	.attr("font-family","sans-serif")
+				// 	.attr("font-size",8);
+
+				svg4.append("g")
+					.call(xDateAxis)
+					.attr("transform","translate(0," + (hDate - margin.bottom) + ")");
+
+				svg4.append("g")
+					.call(yDateAxis)
+					.attr("transform","translate("+margin.left+",0)");
 
 				return null;
 			}

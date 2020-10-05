@@ -13,96 +13,100 @@
 		<p id="update">Click here to update!</p>
 		<svg id="uchart"></svg>
 		<script>
-			var dataset =[ 5,10,13,19,21,25,22,18,15,13,
-						  11,12,15,20,18,17,16,18,23,25];
 
-			var width=627;
-			var height=300;
+			// var scatterdata =[
+			// 	[5,20],
+			// 	[480,90],
+			// 	[250,50],
+			// 	[100,33],
+			// 	[330,95],
+			// 	[410,12],
+			// 	[475,44],
+			// 	[25,67],
+			// 	[85,21],
+			// 	[220,88]
+			// 	,[611,300]
+			// 	//,[6300,250]
+			// 				];
+			
+			var scatterdata =[];
+			var numDataPoints=30;
+			var xRange=Math.random()*1000;
+			var yRange=Math.random()*1000;
+			
+			function newSet(){
+				scatterdata = [];
+				for(var i=0;i<numDataPoints;i++){
+					var newNum1 = Math.floor(Math.random()*xRange);
+					var newNum2 = Math.floor(Math.random()*yRange);
+					scatterdata.push([newNum1,newNum2]);
+				}
+			}
+
+			newSet();
+
+			var width=500;
+			var height=500;
 			var border = {left:30,right:30,top:30,bottom:30};
 			var barpadding = 2
 
 			document.getElementById("uchart").setAttribute("height",height);
 			document.getElementById("uchart").setAttribute("width",width);
-			
+
+			var xScale = d3.scaleLinear()
+				.domain([0,d3.max(scatterdata,d=>d[0])])
+				.range([0+border.left,width]);
+
 			var yScale = d3.scaleLinear()
-				.domain([0,d3.max(dataset,d=>d)])
-				.range([0,height]);
-			
-			var rgbScale = d3.scaleLinear()
-				.domain([d3.min(dataset,d=>d),d3.max(dataset,d=>d)])
-				.range([0,255]);
+				.domain([0,d3.max(scatterdata,d=>d[1])])
+				.range([height-border.bottom,0]);
 
-			var xScale = d3.scaleBand()
-				.domain(d3.range(dataset.length))
-				.rangeRound([0,width])
-				//.round(true)
-				.paddingInner(0.05);
+			var xAxis = d3.axisBottom()
+				.scale(xScale);
 
-			d3.select("#uchart")
-				.selectAll("rect")
-				.data(dataset)
+			var yAxis = d3.axisLeft()
+				.scale(yScale)
+			var chart = d3.select("#uchart");
+
+			chart.selectAll("circle")
+				.data(scatterdata)
 				.enter()
-				.append("rect")
-				//.attr("x",(d,i)=>i*(width/dataset.length))
-				.attr("x",(d,i)=>xScale(i))
-				.attr("y",d=>height-yScale(d))
-				//.attr("width",width/dataset.length-barpadding)
-				.attr("width",xScale.bandwidth())
-				.attr("height",d=>yScale(d))
-				.attr("fill",d=>"rgb(0,0,"+Math.round(rgbScale(d))+")");
-				//.attr("fill","blue");
+				.append("circle")
+				.attr("cx",d=>xScale(d[0]))
+				.attr("cy",d=>yScale(d[1]))
+				.attr("r","10")
+				.attr("fill","black");
 
-			d3.select("#uchart")
-				.selectAll("text")
-				.data(dataset)
-				.enter()
-				.append("text")
-				//.attr("x",(d,i)=>i*(width/dataset.length)+(width/dataset.length-barpadding)/2)
-				.attr("x",(d,i)=>xScale(i)+xScale.bandwidth()/2)
-				.attr("y",d=>height-yScale(d)+(d==1?-5:15))
-				.text(d=>d)
-				.attr("font-size","11px")
-				.attr("font-family","sans-serif")
-				.attr("fill",d=>(d==1?"black":"white"))
-				.attr("text-anchor","middle");
-			
+			chart.append("g")
+				.attr("class","x axis")
+				.attr("transform","translate(0,"+(height-border.bottom)+")")
+				.call(xAxis);
+
+			chart.append("g")
+				.attr("class","y axis")
+				.attr("transform","translate("+border.left+",0)")
+				.call(yAxis)
+
 			d3.select("#update")
 				.on("click",function(){
-					//new random set
-					var numValues = dataset.length;
-					for(var i=0;i<numValues;i++){
-						dataset[i]=Math.floor(Math.random()*40)+1;
-					}
-					
-					//recalc scales
-					yScale.domain([0,d3.max(dataset,d=>d)]);
-					rgbScale.domain([d3.min(dataset,d=>d),d3.max(dataset,d=>d)]);
-
-					//redraw bars
-					d3.select("#uchart")
-						.selectAll("rect")
-						.data(dataset)
+					newSet();
+					chart.selectAll("circle")
+						.data(scatterdata)
 						.transition()
-						.delay((d,i)=>i*100)
-						.duration(500)
-						//.ease(d3.easeBounceOut)
-						.attr("y",d=>height-yScale(d))
-						.attr("height",d=>yScale(d))
-						.attr("fill",d=>"rgb(0,0,"+Math.round(rgbScale(d))+")");
-
-					//redraw labels
-					d3.select("#uchart")
-						.selectAll("text")
-						.data(dataset)
+						.duration(1000)
+						.attr("cx",d=>xScale(d[0]))
+						.attr("cy",d=>yScale(d[1]));
+					xScale.domain([0,d3.max(scatterdata,d=>d[0])]);
+					yScale.domain([0,d3.max(scatterdata,d=>d[1])]);
+					chart.select(".x.axis")
 						.transition()
-						.delay((d,i)=>i*100)
-						.duration(500)
-						//.ease(d3.easeBounceOut)
-						.attr("y",d=>height-yScale(d)+(d==1?-5:15))
-						.attr("fill",d=>(d==1?"black":"white"))
-						.text(d=>d);
-					})
-
+						.duration(1000)
+						.call(xAxis);
+					chart.select(".y.axis")
+						.transition()
+						.duration(1000)
+						.call(yAxis);
+				})
 		</script>
 	</body>
 </html>

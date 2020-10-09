@@ -2,7 +2,7 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>Chapter 9</title>
+		<title>Chapter 9 Scatter</title>
 		<!-- https://github.com/scotthmurray/d3-book -->
 		<script 
 			type="text/javascript" src="https://d3js.org/d3.v6.js">
@@ -68,7 +68,18 @@
 				.scale(yScale)
 			var chart = d3.select("#uchart");
 
-			chart.selectAll("circle")
+			chart.append("clipPath")
+				.attr("id","uchartClip")
+				.append("rect")
+				.attr("x",border.left)
+				.attr("y","0")
+				.attr("width",width-border.left)
+				.attr("height",height-border.bottom);
+
+			chart.append("g")
+				.attr("id","circlesGroup")
+				.attr("clip-path","url(#uchartClip")
+				.selectAll("circle")
 				.data(scatterdata)
 				.enter()
 				.append("circle")
@@ -86,18 +97,28 @@
 				.attr("class","y axis")
 				.attr("transform","translate("+border.left+",0)")
 				.call(yAxis)
-
+			
 			d3.select("#update")
 				.on("click",function(){
 					newSet();
+					xScale.domain([0,d3.max(scatterdata,d=>d[0])]);
+					yScale.domain([0,d3.max(scatterdata,d=>d[1])]);
 					chart.selectAll("circle")
 						.data(scatterdata)
 						.transition()
 						.duration(1000)
+						.on("start",function(){
+							d3.select(this) // hey look, this takes the current circle in a loop
+								.attr("fill","magenta")
+								.attr("r","15")
+						})
 						.attr("cx",d=>xScale(d[0]))
-						.attr("cy",d=>yScale(d[1]));
-					xScale.domain([0,d3.max(scatterdata,d=>d[0])]);
-					yScale.domain([0,d3.max(scatterdata,d=>d[1])]);
+						.attr("cy",d=>yScale(d[1]))
+						.transition()
+						.duration(250)
+						.attr("fill","black")
+						.attr("r","10");
+
 					chart.select(".x.axis")
 						.transition()
 						.duration(1000)

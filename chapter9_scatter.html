@@ -108,7 +108,7 @@
 						.transition()
 						.duration(1000)
 						.on("start",function(){
-							d3.select(this) // hey look, this takes the current circle in a loop
+							d3.select(this) // hey look, "this" refers to the current circle in a loop
 								.attr("fill","magenta")
 								.attr("r","15")
 						})

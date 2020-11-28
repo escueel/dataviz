@@ -37,34 +37,50 @@
 				.rangeRound([0,width])
 				//.round(true)
 				.paddingInner(0.05);
-
-			d3.select("#uchart")
-				.selectAll("rect")
-				.data(dataset)
-				.enter()
-				.append("rect")
-				//.attr("x",(d,i)=>i*(width/dataset.length))
-				.attr("x",(d,i)=>xScale(i))
+			
+			var chart=d3.select("#uchart");
+			var rects=chart.selectAll("rect");
+			var rectsData=rects.data(dataset)
+			var rectsDataEnter=rectsData.enter();
+			
+			function drawRect(s,xPos) {
+				s
+				.attr("x",xPos)
 				.attr("y",d=>height-yScale(d))
-				//.attr("width",width/dataset.length-barpadding)
 				.attr("width",xScale.bandwidth())
 				.attr("height",d=>yScale(d))
 				.attr("fill",d=>"rgb(0,0,"+Math.round(rgbScale(d))+")");
-				//.attr("fill","blue");
+				return s;
+			}
 
-			d3.select("#uchart")
-				.selectAll("text")
-				.data(dataset)
-				.enter()
-				.append("text")
-				//.attr("x",(d,i)=>i*(width/dataset.length)+(width/dataset.length-barpadding)/2)
-				.attr("x",(d,i)=>xScale(i)+xScale.bandwidth()/2)
+			function drawText(s,xPos){
+				s
+				.attr("x",xPos)
 				.attr("y",d=>height-yScale(d)+(d==1?-5:15))
 				.text(d=>d)
 				.attr("font-size","11px")
 				.attr("font-family","sans-serif")
-				.attr("fill",d=>(d==1?"black":"white"))
+				.attr("fill",d=>(d==1?"black":"red"))
 				.attr("text-anchor","middle");
+				return s;
+			}
+
+			drawRect(d3.select("#uchart")
+				.selectAll("rect")
+				.data(dataset)
+				.enter()
+				.append("rect")
+				,(d,i)=>xScale(i)
+			);
+			
+			drawText(
+				d3.select("#uchart")
+				.selectAll("text")
+				.data(dataset)
+				.enter()
+				.append("text")
+				,(d,i)=>xScale(i)+xScale.bandwidth()/2
+			);
 			
 			d3.select("#update")
 				.on("click",function(){
@@ -75,38 +91,41 @@
 					// }
 					
 					//just add a new element
-					dataset.push(Math.floor(Math.random()*25)+1);
-					
-					xScale.domain(d3.range(dataset.length))
+					dataset.push(Math.floor(Math.random()*50)+1);
 					
 					//recalc scales
+					xScale.domain(d3.range(dataset.length))
 					yScale.domain([0,d3.max(dataset,d=>d)]);
 					rgbScale.domain([d3.min(dataset,d=>d),d3.max(dataset,d=>d)]);
-
+					
 					//redraw bars
-					d3.select("#uchart")
-						.selectAll("rect")
-						.data(dataset)
-						.enter()
+					var bars=d3.select("#uchart")
+								.selectAll("rect")
+								.data(dataset);
+					
+					drawRect(bars.enter().append("rect"),width)
+						//grab all the bars and transition
+						.merge(bars)
 						.transition()
-						.delay((d,i)=>i*100)
 						.duration(500)
-						//.ease(d3.easeBounceOut)
+						.attr("x",(d,i)=>xScale(i))
 						.attr("y",d=>height-yScale(d))
-						.attr("height",d=>yScale(d))
-						.attr("fill",d=>"rgb(0,0,"+Math.round(rgbScale(d))+")");
+						.attr("width",xScale.bandwidth());
 
+					
 					//redraw labels
-					d3.select("#uchart")
+					var labels=d3.select("#uchart")
 						.selectAll("text")
-						.data(dataset)
+						.data(dataset);
+					
+					drawText(labels.enter().append("text"),width+xScale.bandwidth())
+						//and again, merge to get the whole set, and transition
+						.merge(labels)
 						.transition()
-						.delay((d,i)=>i*100)
+						// .delay((d,i)=>i*100)
 						.duration(500)
-						//.ease(d3.easeBounceOut)
+						.attr("x",(d,i)=>xScale(i)+xScale.bandwidth()/2)
 						.attr("y",d=>height-yScale(d)+(d==1?-5:15))
-						.attr("fill",d=>(d==1?"black":"white"))
-						.text(d=>d);
 					})
 
 		</script>

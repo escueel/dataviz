@@ -10,7 +10,7 @@
 	</head>
 	<body>
 		<h1>My new updateable chart!</h1>
-		<p id="update">Click here to update!</p>
+		<p id="update">Click here to delete a value!</p>
 		<svg id="uchart"></svg>
 		<script>
 			var dataset =[ 5,10,13,19,21,25,22,18,15,13,
@@ -90,9 +90,9 @@
 					// 	dataset[i]=Math.floor(Math.random()*40)+1;
 					// }
 					
-					//just add a new element
-					dataset.push(Math.floor(Math.random()*50)+1);
-					
+					//remove first element
+					dataset.shift();
+
 					//recalc scales
 					xScale.domain(d3.range(dataset.length))
 					yScale.domain([0,d3.max(dataset,d=>d)]);
@@ -103,29 +103,26 @@
 								.selectAll("rect")
 								.data(dataset);
 					
-					drawRect(bars.enter().append("rect"),width)
-						//grab all the bars and transition
-						.merge(bars)
+					bars.exit()
 						.transition()
 						.duration(500)
-						.attr("x",(d,i)=>xScale(i))
-						.attr("y",d=>height-yScale(d))
-						.attr("width",xScale.bandwidth());
-
+						.attr("x",width)
+						.remove();
 					
+					drawRect(bars,(d,i)=>xScale(i));
+
 					//redraw labels
 					var labels=d3.select("#uchart")
 						.selectAll("text")
 						.data(dataset);
 					
-					drawText(labels.enter().append("text"),width+xScale.bandwidth())
-						//and again, merge to get the whole set, and transition
-						.merge(labels)
+					labels.exit()
 						.transition()
-						// .delay((d,i)=>i*100)
 						.duration(500)
-						.attr("x",(d,i)=>xScale(i)+xScale.bandwidth()/2)
-						.attr("y",d=>height-yScale(d)+(d==1?-5:15))
+						.attr("x",width)
+						.remove();
+
+					drawText(labels,(d,i)=>xScale(i)+xScale.bandwidth()/2);
 					})
 
 		</script>
